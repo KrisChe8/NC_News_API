@@ -11,36 +11,33 @@ beforeEach(()=>{
 })
 afterAll(() => {db.end()});
 
-describe('app', ()=>{
-    describe('api', ()=>{
-        describe('GET /api/topics', ()=>{
-            test('statuscode 200', ()=>{
-                return request(app).get('/api/topics').expect(200);
-            })
-            test('should return an array of topic objects', ()=>{
-                return request(app).get('/api/topics')
-                .then(({body})=>{
-                    const {topics} = body;
-                    expect(Array.isArray(topics)).toBe(true);
-                    topics.forEach((topic)=>{
-                        expect(typeof topic.slug).toBe('string');
-                        expect(typeof topic.description).toBe('string');
-                    }) 
-                })
+
+describe('api', ()=>{
+    describe('GET /api/topics', ()=>{
+        test('should return statuscode 200 and  an array of topic objects', ()=>{
+            return request(app).get('/api/topics')
+            .expect(200)
+            .then(({body})=>{
+                const {topics} = body;
+                expect(topics).not.toHaveLength(0);
+                topics.forEach((topic)=>{
+                    expect(typeof topic.slug).toBe('string');
+                    expect(typeof topic.description).toBe('string');
+                }) 
             })
         })
-        describe('GET /api', ()=>{
-            test('should return statusCode 200 and  object describing all the available endpoints on API', ()=>{
-                return request(app).get('/api')
-                . expect(200)
-                .then(({body})=>{
-                    const {instructions} = body;
-                    for(let key in instructions){
+    })
+    describe('GET /api', ()=>{
+        test('should return statusCode 200 and  object describing all the available endpoints on API', ()=>{
+            return request(app).get('/api')
+            . expect(200)
+            .then(({body})=>{
+                const {instructions} = body;
+                for(let key in instructions){
                         expect(instructions[key].hasOwnProperty("description")).toBe(true);
                         expect(instructions[key].hasOwnProperty("queries")).toBe(true);
                         expect(instructions[key].hasOwnProperty("exampleResponse")).toBe(true);
-                    } 
-                })
+                } 
             })
         })
     })
