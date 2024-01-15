@@ -29,5 +29,19 @@ describe('app', ()=>{
                 })
             })
         })
+        describe('GET /api', ()=>{
+            test('should return statusCode 200 and  object describing all the available endpoints on API', ()=>{
+                return request(app).get('/api')
+                . expect(200)
+                .then(({body})=>{
+                    const {instructions} = body;
+                    for(let key in instructions){
+                        expect(instructions[key].hasOwnProperty("description")).toBe(true);
+                        expect(instructions[key].hasOwnProperty("queries")).toBe(true);
+                        expect(instructions[key].hasOwnProperty("exampleResponse")).toBe(true);
+                    } 
+                })
+            })
+        })
     })
 })
