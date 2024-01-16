@@ -212,4 +212,48 @@ describe('api', ()=>{
         })
 
     })
+    describe("POST /api/articles/:article_id/comments", ()=>{
+        test("POST: 201 inserts a new comment to the db and sends the posted comment to the client", ()=>{
+            const newComment = {
+                username: 'icellusedkars',
+                body: "Hello world!"
+            };
+            return request(app)
+            .post('/api/articles/1/comments')
+            .send(newComment)
+            .expect(201)
+            .then(({body})=>{
+                const {comment} = body;
+                expect(comment.body).toBe("Hello world!");
+                expect(comment.author).toBe("icellusedkars");
+                expect(comment.article_id).toBe(1)
+            })
+        })
+        test('POST:404 sends an appropriate status and error message when given a valid but non-existent id', ()=>{
+            const newComment = {
+                username: 'icellusedkars',
+                body: "Hello world!"
+            };
+            return request(app)
+            .post('/api/articles/999/comments')
+            .send(newComment)
+            .expect(404)
+            .then(({body})=>{
+                expect(body.msg).toBe("Article does not exist");
+            })
+        })
+        test('POST:400 sends an appropriate status and error message when given an invalid id', ()=>{
+            const newComment = {
+                username: 'icellusedkars',
+                body: "Hello world!"
+            };
+            return request(app)
+            .post('/api/articles/karamba/comments')
+            .send(newComment)
+            .expect(400)
+            .then(({body})=>{
+                expect(body.msg).toBe('Bad request')
+            })
+        })
+    })
 })
