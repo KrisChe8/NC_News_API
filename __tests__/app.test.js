@@ -256,4 +256,39 @@ describe('api', ()=>{
             })
         })
     })
+    describe("PATCH /api/articles/:article_id", ()=>{
+        test("PATCH: 200 sends an updated article", ()=>{
+            const updateVote = {inc_votes : 1 }
+            return request(app)
+            .patch("/api/articles/1")
+            .send(updateVote)
+            .expect(200)
+            .then(({body})=>{
+                console.log(body, "<<<body testjs")
+                const {article} = body;
+                expect(article.votes).toBe(101)
+                expect(article.article_id).toBe(1)
+            })
+        })
+        test('PATCH:404 sends an appropriate status and error message when given a valid but non-existent id', ()=>{
+            const updateVote = {inc_votes : 1 };
+            return request(app)
+            .patch("/api/articles/991")
+            .send(updateVote)
+            .expect(404)
+            .then(({body})=>{
+                expect(body.msg).toBe("Article does not exist");
+            })
+        })
+        test('PATCH:400 sends an appropriate status and error message when given an invalid id', ()=>{
+            const updateVote = {inc_votes : 1 };
+            return request(app)
+            .patch("/api/articles/not-id")
+            .send(updateVote)
+            .expect(400)
+            .then(({body})=>{
+                expect(body.msg).toBe('Bad request')
+            })
+        })
+    })
 })

@@ -45,3 +45,16 @@ module.exports.fetchAllArticles = (order_by = 'created_at', orderWay = 'desc', t
         return result.rows
     })
 }
+
+module.exports.updateArticleVotes = (id, votesIncr)=>{
+    const num = Number(votesIncr);
+    return db.query(
+        `UPDATE articles 
+        SET votes = articles.votes+$1 
+        WHERE article_id = $2
+        RETURNING *;`,
+        [num, id]
+    ).then((result)=>{
+        return result.rows[0];
+    })
+}

@@ -1,12 +1,15 @@
 const {
     fetchArticleById,
-    fetchAllArticles
+    fetchAllArticles,
+    updateArticleVotes
 } = require("../models/articles.models")
 
 const {
     checkTopicExist, 
-    checkAuthorExist
+    checkAuthorExist,
+    checkArticleExists
 } = require("../utils/checkExistence.utils")
+
 
 module.exports.getArticleById = (req, res, next) =>{
     const {article_id} = req.params;
@@ -70,4 +73,25 @@ module.exports.getAllArticles = (req, res, next) =>{
         next(err)
     })
     
+}
+
+exports.patchArticleVotes = (req, res, next) =>{
+    const {article_id} = req.params;
+    const {inc_votes} = req.body;
+
+    const articleExistenceQuery = checkArticleExists(article_id);
+    const updateVotesQuery =  updateArticleVotes(article_id, inc_votes);
+    const queries =[updateVotesQuery, articleExistenceQuery];
+    Promise.all(queries)
+
+    
+    .then((response)=>{
+        const article = response[0];
+        res.status(200).send({article})
+    })
+    .catch((err)=>{
+        console.log(err)
+        next(err)
+    })
+
 }
