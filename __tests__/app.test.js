@@ -163,4 +163,53 @@ describe('api', ()=>{
             })
         })
     })
+    describe("GET /api/articles/:article_id/comments", ()=>{
+        test("should return statuscode 200 and  an array of comments for an article given by ID", ()=>{
+            return request(app).get("/api/articles/1/comments")
+            .expect(200)
+            .then(({body})=>{
+                const {comments} = body;
+                expect(comments).not.toHaveLength(0);
+                comments.forEach((comment)=>{
+                expect(comment['article_id']).toBe(1);
+                expect(typeof comment['comment_id']).toBe('number');
+                expect(typeof comment['body']).toBe('string');
+                expect(typeof comment['author']).toBe('string');
+                expect(typeof comment['created_at']).toBe("string");
+                expect(typeof comment['votes']).toBe("number")
+                })
+            })
+        })
+        test("return 200 and an array of comments for an article given by ID sorted by created_at in DESC ", ()=>{
+            return request(app).get("/api/articles/1/comments")
+            .expect(200)
+            .then(({body})=>{
+                const{comments} = body;
+                expect(comments).toBeSortedBy("created_at", { descending: true });
+            })
+        })
+        test("return 200 and an empty array of comments when the article does not have comments ", ()=>{
+            return request(app).get("/api/articles/2/comments")
+            .expect(200)
+            .then(({body})=>{
+                const{comments} = body;
+                expect(comments).toEqual([]);
+            })
+        })
+        test("GET:404 sends an appropriate status and error message when given a valid but NON-existent article ID ", ()=>{
+            return request(app).get("/api/articles/999/comments")
+            .expect(404)
+            .then(({body})=>{
+                expect(body.msg).toBe("Article does not exist")
+            })
+        })
+        test('GET:400 sends an appropriate status and error message when given an invalid ID', ()=>{
+            return request(app).get('/api/articles/dog/comments')
+            .expect(400)
+            .then(({body})=>{
+                expect(body.msg).toBe('Bad request')
+            })
+        })
+
+    })
 })
