@@ -264,7 +264,6 @@ describe('api', ()=>{
             .send(updateVote)
             .expect(200)
             .then(({body})=>{
-                console.log(body, "<<<body testjs")
                 const {article} = body;
                 expect(article.votes).toBe(101)
                 expect(article.article_id).toBe(1)
@@ -290,5 +289,26 @@ describe('api', ()=>{
                 expect(body.msg).toBe('Bad request')
             })
         })
+    })
+    describe("DELETE /api/comments/:comment_id", ()=>{
+        test('DELETE: 204 deletes the specified comment and sends no body back', ()=>{
+            return request(app).delete('/api/comments/1').expect(204);
+        })
+        test('DELETE:404 responds with an appropriate status and error message when given a non-existent id', () => {
+            return request(app)
+              .delete('/api/comments/999')
+              .expect(404)
+              .then((response) => {
+                expect(response.body.msg).toBe('Comment does not exist');
+              });
+          });
+          test('DELETE:400 responds with an appropriate status and error message when given an invalid id', () => {
+            return request(app)
+              .delete('/api/comments/notId')
+              .expect(400)
+              .then((response) => {
+                expect(response.body.msg).toBe('Bad request');
+              });
+          });
     })
 })

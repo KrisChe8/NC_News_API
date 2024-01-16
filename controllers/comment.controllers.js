@@ -1,8 +1,11 @@
 const {
     fetchCommentsByArticleId,
-    insertComment
+    insertComment,
+    removeCommentById
 } = require("../models/comment.models");
-const {checkArticleExists} = require("../utils/checkExistence.utils");
+const {
+    checkArticleExists,
+    checkCommentExist} = require("../utils/checkExistence.utils");
 
 module.exports.getCommentsByArticleId = (req, res, next)=>{
     const {article_id} = req.params;
@@ -34,6 +37,23 @@ exports.postComment = (req, res, next)=>{
         res.status(201).send({comment})
     })
     .catch((err)=>{
+        next(err)
+    })
+}
+
+exports.deleteCommentById = (req, res, next)=>{
+    const {comment_id} = req.params;
+
+    const commentExistence = checkCommentExist(comment_id);
+    const deleteCommentQuery = removeCommentById(comment_id);
+    const queries = [deleteCommentQuery, commentExistence];
+
+    Promise.all(queries)
+    .then(()=>{
+        res.status(204).send()
+    })
+    .catch((err)=>{
+        console.log(err)
         next(err)
     })
 }

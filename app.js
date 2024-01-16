@@ -14,7 +14,8 @@ const {
 } = require("./error-handler")
 const {
     getCommentsByArticleId,
-    postComment
+    postComment,
+    deleteCommentById
 } = require("./controllers/comment.controllers")
 
 const app = express();
@@ -29,6 +30,8 @@ app.get("/api/articles/:article_id/comments", getCommentsByArticleId )
 app.post("/api/articles/:article_id/comments", postComment)
 
 app.patch("/api/articles/:article_id", patchArticleVotes)
+
+app.delete("/api/comments/:comment_id", deleteCommentById)
 
 app.use(psqlErrorHandler);
 app.use(customErrorHandler);
