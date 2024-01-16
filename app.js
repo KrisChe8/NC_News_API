@@ -11,6 +11,7 @@ const {
     customErrorHandler,
     serverErrorHandler
 } = require("./error-handler")
+const {getCommentsByArticleId} = require("./controllers/comment.controllers")
 
 const app = express();
 
@@ -20,6 +21,8 @@ app.get("/api", getEndpoints);
 app.get("/api/articles/:article_id", getArticleById );
 
 app.get("/api/articles", getAllArticles)
+
+app.get("/api/articles/:article_id/comments", getCommentsByArticleId )
 
 
 app.use(psqlErrorHandler);
