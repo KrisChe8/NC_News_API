@@ -311,4 +311,26 @@ describe('api', ()=>{
               });
           });
     })
+    describe("GET /api/users", ()=>{
+        test("check if the returned array is not empty", ()=>{
+            return request(app).get("/api/users")
+            .expect(200)
+            .then(({body})=>{
+                const {users} = body;
+                expect(users).not.toHaveLength(0);
+            })
+        })
+        test("GET: 200 and  an array of users objects", ()=>{
+            return request(app).get("/api/users")
+            .expect(200)
+            .then(({body})=>{
+                const {users} = body;
+                users.forEach((user)=>{
+                    expect(typeof user.username).toBe('string');
+                    expect(typeof user.name).toBe('string');
+                    expect(typeof user.avatar_url).toBe('string');
+                })
+            })
+        })
+    })
 })
