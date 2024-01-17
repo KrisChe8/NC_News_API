@@ -361,4 +361,15 @@ describe('api', ()=>{
             })
         })
     })
+    describe("GET /api/articles/:article_id with comment_count", ()=>{
+        test("should return statusCode 200 and article object by id with comment_count", ()=>{
+            return request(app).get("/api/articles/1")
+            .expect(200)
+            .then(({body})=>{
+                const {article} = body; 
+                expect(article['article_id']).toBe(1);
+                expect(article.hasOwnProperty("comment_count")).toBe(true);
+            })
+        })
+    })
 })
