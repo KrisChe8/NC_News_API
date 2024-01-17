@@ -27,8 +27,9 @@ module.exports.fetchAllArticles = (order_by = 'created_at', orderWay = 'desc', t
         articles.author,
         articles.created_at,
         articles.votes,
-        articles.article_img_url
-        FROM articles JOIN comments ON articles.article_id=comments.article_id`; 
+        articles.article_img_url,
+        count(comments.article_id) AS comment_count
+        FROM articles LEFT JOIN comments ON articles.article_id=comments.article_id`; 
 
         const queryParams = [];
         if(topic){
@@ -40,6 +41,7 @@ module.exports.fetchAllArticles = (order_by = 'created_at', orderWay = 'desc', t
             queryParams.push(author);
         }
 
+        queryStr += ` GROUP BY articles.article_id`
         queryStr += ` ORDER BY ${order_by} ${orderWay}`;
     return db.query(queryStr, queryParams).then((result)=>{
         return result.rows

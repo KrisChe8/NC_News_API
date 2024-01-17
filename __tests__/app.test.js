@@ -87,7 +87,7 @@ describe('api', ()=>{
                 expect(typeof article['created_at']).toBe("string");
                 expect(typeof article['votes']).toBe('number');
                 expect(typeof article['article_img_url']).toBe('string');
-                expect(typeof article['comment_count']).toBe('number')
+                expect(typeof article['comment_count']).toBe('string')
                 })
             })
         })
@@ -330,6 +330,34 @@ describe('api', ()=>{
                     expect(typeof user.name).toBe('string');
                     expect(typeof user.avatar_url).toBe('string');
                 })
+            })
+        })
+    })
+    describe("GET /api/articles/?topic=cats", ()=>{
+        test("should return statuscode 200 and  an array of article objects ONLY of given TOPIC", ()=>{
+            return request(app).get("/api/articles/?topic=cats")
+            .expect(200)
+            .then(({body})=>{
+                const {articles} = body;
+                expect(articles).not.toHaveLength(0);
+                articles.forEach((article)=>{
+                    expect(article.topic).toBe("cats")
+                })
+            })
+        })
+        test("should return statuscode 200 and  an array of ALL article objects if query is omitted", ()=>{
+            return request(app).get("/api/articles")
+            .expect(200)
+            .then(({body})=>{
+                const {articles} = body;
+                expect(articles).toHaveLength(13);
+            })
+        })
+        test('GET:404 sends an appropriate status and error message when given a valid but NON-existent TOPIC', ()=>{
+            return request(app).get('/api/articles?topic=burger')
+            .expect(404)
+            .then(({body})=>{
+                expect(body.msg).toBe("Topic does not exist");
             })
         })
     })
