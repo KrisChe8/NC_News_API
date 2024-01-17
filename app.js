@@ -18,6 +18,11 @@ const {
     deleteCommentById
 } = require("./controllers/comment.controllers")
 
+const {
+    getAllUsers
+} = require("./controllers/users.controllers")
+
+
 const app = express();
 app.use(express.json());
 
@@ -27,11 +32,14 @@ app.get("/api/articles/:article_id", getArticleById );
 app.get("/api/articles", getAllArticles)
 app.get("/api/articles/:article_id/comments", getCommentsByArticleId )
 
+app.get("/api/users", getAllUsers);
+
 app.post("/api/articles/:article_id/comments", postComment)
 
 app.patch("/api/articles/:article_id", patchArticleVotes)
 
 app.delete("/api/comments/:comment_id", deleteCommentById)
+
 
 app.use(psqlErrorHandler);
 app.use(customErrorHandler);
