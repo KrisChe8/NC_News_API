@@ -437,4 +437,31 @@ describe('api', ()=>{
             })
         })
     })
+    describe("GET /api/users/:username", ()=>{
+        test("should return statusCode 200 and user object by user name", ()=>{
+            return request(app).get("/api/users/rogersop")
+            .expect(200)
+            .then(({body})=>{
+                const {user} = body;
+                expect(user.name).toBe("paul");
+                expect(user.avatar_url).toBe("https://avatars2.githubusercontent.com/u/24394918?s=400&v=4")
+            })
+        })
+        test('GET:404 sends an appropriate status and error message when given a valid but non-existent username', ()=>{
+            return request(app).get('/api/users/kris')
+            .expect(404)
+            .then(({body})=>{
+                expect(body.msg).toBe("User does not exist");
+            })
+            
+        })
+        test('GET:404 sends an appropriate status and error message when given a valid but non-existent username', ()=>{
+            return request(app).get('/api/users/123')
+            .expect(404)
+            .then(({body})=>{
+                expect(body.msg).toBe("User does not exist");
+            })
+            
+        })
+    })
 })
