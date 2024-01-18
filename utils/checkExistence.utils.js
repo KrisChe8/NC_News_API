@@ -1,7 +1,7 @@
 const db = require("../db/connection");
 
 module.exports.checkTopicExist = (topic)=>{
-    return db.query("SELECT * FROM articles WHERE topic = $1", [topic])
+    return db.query("SELECT * FROM topics WHERE slug = $1", [topic])
     .then(({rows})=>{
         if(rows.length === 0){
             return Promise.reject({status: 404, msg: "Topic does not exist"})
@@ -32,6 +32,15 @@ module.exports.checkCommentExist = (id)=>{
     .then(({rows})=>{
         if(rows.length === 0){
             return Promise.reject({status: 404, msg: "Comment does not exist"})
+        }
+    })
+}
+
+exports.checkUsernameExist = (username)=>{
+    return db.query("SELECT * FROM users WHERE username = $1", [username])
+    .then(({rows})=>{
+        if(rows.length === 0){
+            return Promise.reject({status: 404, msg: "Username does not exist"})
         }
     })
 }

@@ -242,6 +242,19 @@ describe('api', ()=>{
                 expect(body.msg).toBe("Article does not exist");
             })
         })
+        test('POST:404 sends an appropriate status and error message when given a valid but non-existent username', ()=>{
+            const newComment = {
+                username: 'kris',
+                body: "Hello world!"
+            };
+            return request(app)
+            .post('/api/articles/1/comments')
+            .send(newComment)
+            .expect(404)
+            .then(({body})=>{
+                expect(body.msg).toBe("Username does not exist");
+            })
+        })
         test('POST:400 sends an appropriate status and error message when given an invalid id', ()=>{
             const newComment = {
                 username: 'icellusedkars',
@@ -253,6 +266,18 @@ describe('api', ()=>{
             .expect(400)
             .then(({body})=>{
                 expect(body.msg).toBe('Bad request')
+            })
+        })
+        test('POST:400 sends an appropriate status and error message when missing required properties', ()=>{
+            const newComment = {
+                body: "Hello world!"
+            };
+            return request(app)
+            .post('/api/articles/1/comments')
+            .send(newComment)
+            .expect(400)
+            .then(({body})=>{
+                expect(body.msg).toBe('Bad request: missing some properties')
             })
         })
     })
@@ -269,6 +294,18 @@ describe('api', ()=>{
                 expect(article.article_id).toBe(1)
             })
         })
+        test("PATCH: 200 sends an updated article when negative number is given", ()=>{
+            const updateVote = {inc_votes : -10 }
+            return request(app)
+            .patch("/api/articles/1")
+            .send(updateVote)
+            .expect(200)
+            .then(({body})=>{
+                const {article} = body;
+                expect(article.votes).toBe(90)
+                expect(article.article_id).toBe(1)
+            })
+        })
         test('PATCH:404 sends an appropriate status and error message when given a valid but non-existent id', ()=>{
             const updateVote = {inc_votes : 1 };
             return request(app)
@@ -277,6 +314,26 @@ describe('api', ()=>{
             .expect(404)
             .then(({body})=>{
                 expect(body.msg).toBe("Article does not exist");
+            })
+        })
+        test('PATCH:400 sends an appropriate status and error message when missing properties', ()=>{
+            const updateVote = {};
+            return request(app)
+            .patch("/api/articles/1")
+            .send(updateVote)
+            .expect(400)
+            .then(({body})=>{
+                expect(body.msg).toBe("Bad request: missing some properties OR inc_votes is not a integer");
+            })
+        })
+        test('PATCH:400 sends an appropriate status and error message when inc_votes is not a number', ()=>{
+            const updateVote = {inc_votes: "dog"};
+            return request(app)
+            .patch("/api/articles/1")
+            .send(updateVote)
+            .expect(400)
+            .then(({body})=>{
+                expect(body.msg).toBe("Bad request: missing some properties OR inc_votes is not a integer");
             })
         })
         test('PATCH:400 sends an appropriate status and error message when given an invalid id', ()=>{
@@ -358,6 +415,14 @@ describe('api', ()=>{
             .expect(404)
             .then(({body})=>{
                 expect(body.msg).toBe("Topic does not exist");
+            })
+        })
+        test('GET:200 sends an appropriate status and empry array when given a valid TOPIC, but article does not exist', ()=>{
+            return request(app).get('/api/articles?topic=paper')
+            .expect(200)
+            .then(({body})=>{
+                const {articles} = body;
+                expect(articles).toEqual([]);
             })
         })
     })
