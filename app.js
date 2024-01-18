@@ -1,44 +1,17 @@
 const express = require("express");
-const db = require("./db/connection");
-const {getAllTopics} = require("./controllers/topics.controller")
-const  {getEndpoints} = require("./controllers/endpoints.controller");
-const {
-    getArticleById,
-    getAllArticles,
-    patchArticleVotes
-} = require("./controllers/articles.controllers")
+const apiRouter = require('./routers/api');
+
 const {
     psqlErrorHandler,
     customErrorHandler,
     serverErrorHandler
 } = require("./error-handler")
-const {
-    getCommentsByArticleId,
-    postComment,
-    deleteCommentById
-} = require("./controllers/comment.controllers")
-
-const {
-    getAllUsers
-} = require("./controllers/users.controllers")
 
 
 const app = express();
 app.use(express.json());
 
-app.get("/api/topics", getAllTopics);
-app.get("/api", getEndpoints);
-app.get("/api/articles/:article_id", getArticleById );
-app.get("/api/articles", getAllArticles)
-app.get("/api/articles/:article_id/comments", getCommentsByArticleId )
-
-app.get("/api/users", getAllUsers);
-
-app.post("/api/articles/:article_id/comments", postComment)
-
-app.patch("/api/articles/:article_id", patchArticleVotes)
-
-app.delete("/api/comments/:comment_id", deleteCommentById)
+app.use('/api', apiRouter);
 
 
 app.use(psqlErrorHandler);
