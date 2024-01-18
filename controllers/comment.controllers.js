@@ -5,7 +5,9 @@ const {
 } = require("../models/comment.models");
 const {
     checkArticleExists,
-    checkCommentExist} = require("../utils/checkExistence.utils");
+    checkCommentExist,
+    checkUsernameExist
+} = require("../utils/checkExistence.utils");
 
 module.exports.getCommentsByArticleId = (req, res, next)=>{
     const {article_id} = req.params;
@@ -27,9 +29,10 @@ exports.postComment = (req, res, next)=>{
     const {article_id} = req.params;
     const {username, body} = req.body;
 
+    const usernameExistenceQuery = checkUsernameExist(username);
     const articleExistenceQuery = checkArticleExists(article_id);
     const insertCommentsQuery =  insertComment(username, body, article_id);
-    const queries =[insertCommentsQuery, articleExistenceQuery];
+    const queries =[insertCommentsQuery, articleExistenceQuery, usernameExistenceQuery];
     Promise.all(queries)
 
     .then((response)=>{

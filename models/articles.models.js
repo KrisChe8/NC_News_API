@@ -50,13 +50,17 @@ module.exports.fetchAllArticles = (order_by = 'created_at', orderWay = 'desc', t
 
 module.exports.updateArticleVotes = (id, votesIncr)=>{
     const num = Number(votesIncr);
+   if(!num){
+    return Promise.reject(({status: 400, msg: 'Bad request: missing some properties OR inc_votes is not a integer'}))
+   }
     return db.query(
         `UPDATE articles 
         SET votes = articles.votes+$1 
         WHERE article_id = $2
         RETURNING *;`,
         [num, id]
-    ).then((result)=>{
+    )
+    .then((result)=>{
         return result.rows[0];
     })
 }
