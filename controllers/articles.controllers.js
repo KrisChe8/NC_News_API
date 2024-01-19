@@ -24,11 +24,13 @@ module.exports.getArticleById = (req, res, next) =>{
 
 module.exports.getAllArticles = (req, res, next) =>{
   
-    const {sort_by, order, topic, author} = req.query;
-
-    const fetchArticlesQuery = fetchAllArticles(sort_by, order, topic, author);
+    const {sort_by, order, topic, author, limit, p} = req.query;
+   
+    const fetchArticlesQuery = fetchAllArticles(sort_by, order, topic, author, limit, p);
+  
     const queries =[fetchArticlesQuery];
-    
+
+   
     if(topic){
         const topicExistenceQuery = checkTopicExist(topic);
         queries.push(topicExistenceQuery);
@@ -38,7 +40,6 @@ module.exports.getAllArticles = (req, res, next) =>{
         const authorExistenceQuery = checkAuthorExist(author);
         queries.push(authorExistenceQuery)
     }
-     
     Promise.all(queries)
     .then((response)=>{
         const articles = response[0];

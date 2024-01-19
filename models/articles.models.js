@@ -10,14 +10,29 @@ module.exports.fetchArticleById = (id)=>{
     })
 }
 
-module.exports.fetchAllArticles = (order_by = 'created_at', orderWay = 'desc', topic, author) =>{
+module.exports.fetchAllArticles = (order_by = 'created_at', orderWay = 'desc', topic, author, limit = 10, p=1) =>{
     const orderByAllowed = ['created_at', 'author', 'title','article_id',  'topic', 'votes' ];
     const orderOptions = ['desc', 'asc'];
+
     if(!orderByAllowed.includes(order_by)){
         return Promise.reject({status: 400, msg: "Bad request"})
     }
     if(!orderOptions.includes(orderWay)){
         return Promise.reject({status: 400, msg:"Bad request"})
+    }
+    const limitNumb = Number(limit);
+    const pageNum = Number(p);
+
+    if(typeof limitNumb !=="number"){
+        limitNumb = 10;
+    }
+    if(typeof pageNum !=="number"){
+        pageNum = 1;
+    }
+
+    let offsetVal = 0;
+    if(pageNum>1){
+       offsetVal =  limitNumb*pageNum - limitNumb;
     }
     
     let queryStr = `SELECT
@@ -28,7 +43,8 @@ module.exports.fetchAllArticles = (order_by = 'created_at', orderWay = 'desc', t
         articles.created_at,
         articles.votes,
         articles.article_img_url,
-        count(comments.article_id) AS comment_count
+        count(comments.article_id) AS comment_count,
+        count(articles.article_id) AS total_count
         FROM articles LEFT JOIN comments ON articles.article_id=comments.article_id`; 
 
         const queryParams = [];
@@ -40,10 +56,14 @@ module.exports.fetchAllArticles = (order_by = 'created_at', orderWay = 'desc', t
             queryStr += " WHERE articles.author = $1";
             queryParams.push(author);
         }
-
+        
         queryStr += ` GROUP BY articles.article_id`
-        queryStr += ` ORDER BY ${order_by} ${orderWay}`;
+        queryStr += ` ORDER BY ${order_by} ${orderWay}`
+        queryStr += ` LIMIT ${limitNumb} OFFSET ${offsetVal}`;
     return db.query(queryStr, queryParams).then((result)=>{
+        if(result.rows.length === 0){
+            return Promise.reject({status: 404, msg: 'There is no more article yet'})
+        }
         return result.rows
     })
 }

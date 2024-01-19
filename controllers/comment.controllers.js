@@ -64,7 +64,7 @@ exports.deleteCommentById = (req, res, next)=>{
 exports.patchCommentsVotes = (req, res, next)=>{
     const {comment_id} = req.params;
     const {inc_votes} = req.body;
-    
+
     const commentExistenceQuery = checkCommentExist(comment_id);
     const updateCommentVotesQuery = updateCommentVotesById(comment_id, inc_votes);
     const queries = [updateCommentVotesQuery, commentExistenceQuery]
@@ -74,7 +74,6 @@ exports.patchCommentsVotes = (req, res, next)=>{
         res.status(200).send({comment})
     })
     .catch((err)=>{
-        console.log(err)
         next(err)
     })
 }
