@@ -464,4 +464,70 @@ describe('api', ()=>{
             
         })
     })
+    describe("PATCH /api/comments/:comment_id", ()=>{
+        test("PATCH: 200 sends an updated article with updated votes", ()=>{
+            const updateVote = {inc_votes : 1 }
+            return request(app)
+            .patch("/api/comments/1")
+            .send(updateVote)
+            .expect(200)
+            .then(({body})=>{
+                const {comment} = body;
+                expect(comment.votes).toBe(17)
+                expect(comment.comment_id).toBe(1);
+            })
+        })
+        test("PATCH: 200 sends an updated article with updated votes, when inc_votes has a negative value", ()=>{
+            const updateVote = {inc_votes : -10 }
+            return request(app)
+            .patch("/api/comments/1")
+            .send(updateVote)
+            .expect(200)
+            .then(({body})=>{
+                const {comment} = body;
+                expect(comment.votes).toBe(6)
+                expect(comment.comment_id).toBe(1);
+            })
+        })
+        test('PATCH:404 sends an appropriate status and error message when given a valid but non-existent id', ()=>{
+            const updateVote = {inc_votes : 1 };
+            return request(app)
+            .patch("/api/comments/991")
+            .send(updateVote)
+            .expect(404)
+            .then(({body})=>{
+                expect(body.msg).toBe("Comment does not exist");
+            })
+        })
+        test('PATCH:400 sends an appropriate status and error message when missing properties', ()=>{
+            const updateVote = {};
+            return request(app)
+            .patch("/api/comments/1")
+            .send(updateVote)
+            .expect(400)
+            .then(({body})=>{
+                expect(body.msg).toBe("Bad request: missing some properties OR inc_votes is not a integer");
+            })
+        })
+        test('PATCH:400 sends an appropriate status and error message when inc_votes is not a number', ()=>{
+            const updateVote = {inc_votes: "dog"};
+            return request(app)
+            .patch("/api/comments/1")
+            .send(updateVote)
+            .expect(400)
+            .then(({body})=>{
+                expect(body.msg).toBe("Bad request: missing some properties OR inc_votes is not a integer");
+            })
+        })
+        test('PATCH:400 sends an appropriate status and error message when given an invalid id', ()=>{
+            const updateVote = {inc_votes : 1 };
+            return request(app)
+            .patch("/api/comments/not-id")
+            .send(updateVote)
+            .expect(400)
+            .then(({body})=>{
+                expect(body.msg).toBe('Bad request')
+            })
+        })
+    })
 })

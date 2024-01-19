@@ -27,3 +27,19 @@ module.exports.removeCommentById = (id)=>{
         `DELETE FROM comments WHERE comment_id = $1`, [id]
     )
 }
+
+module.exports.updateCommentVotesById = (comment_id, inc_votes)=>{
+    const num = Number(inc_votes);
+    if(!num){
+        return Promise.reject(({status: 400, msg: 'Bad request: missing some properties OR inc_votes is not a integer'}))
+       }
+    return db.query(
+        `UPDATE comments 
+        SET votes = comments.votes+$1 
+        WHERE comment_id = $2
+        RETURNING *;`,
+        [num, comment_id]
+    ).then((result)=>{
+        return result.rows[0];
+    })
+}
