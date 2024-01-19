@@ -530,4 +530,78 @@ describe('api', ()=>{
             })
         })
     })
+    describe("POST /api/articles", ()=>{
+        test("POST: 201 inserts a new article to the db and sends the posted article to the client", ()=>{
+            const newArticle = {
+                title: "The Maine Coon",
+                topic: "cats",
+                author: "icellusedkars",
+                body: "The Maine Coon is a large domesticated cat breed.The Maine Coon is predominantly known for its size and dense coat of fur which helps it survive in the harsh climate of Maine. The Maine Coon is often cited as having dog-like characteristics",
+                article_img_url:
+                 "https://images.pexels.com/photos/158651/news-newsletter-newspaper-information-158651.jpeg?w=700&h=700"
+            }
+            return request(app)
+            .post("/api/articles")
+            .send(newArticle)
+            .expect(201)
+            .then(({body})=>{
+                const {article} = body;
+                expect(article.topic).toBe('cats');
+                expect(article.author).toBe("icellusedkars");
+                expect(article.title).toBe("The Maine Coon");
+                expect(article.body).toBe("The Maine Coon is a large domesticated cat breed.The Maine Coon is predominantly known for its size and dense coat of fur which helps it survive in the harsh climate of Maine. The Maine Coon is often cited as having dog-like characteristics");
+                expect(article.article_img_url).toBe("https://images.pexels.com/photos/158651/news-newsletter-newspaper-information-158651.jpeg?w=700&h=700");
+                expect(article.votes).toBe(0);
+                expect(article.comment_count).toBe(0);
+                expect(article.hasOwnProperty("created_at")).toBe(true);
+                expect(article.hasOwnProperty("article_id")).toBe(true);
+
+            })
+        })
+        test('POST:404 sends an appropriate status and error message when given a valid but non-existent author', ()=>{
+            const newArticle = {
+                title: "The Maine Coon",
+                topic: "cats",
+                author: "kris",
+                body: "The Maine Coon is a large domesticated cat breed.The Maine Coon is predominantly known for its size and dense coat of fur which helps it survive in the harsh climate of Maine. The Maine Coon is often cited as having dog-like characteristics"
+            };
+            return request(app)
+            .post('/api/articles')
+            .send(newArticle)
+            .expect(404)
+            .then(({body})=>{
+                expect(body.msg).toBe("Author does not exist");
+            })
+        })
+        test('POST:404 sends an appropriate status and error message when given a valid but non-existent TOPIC', ()=>{
+            const newArticle = {
+                title: "The Maine Coon",
+                topic: "cats-on-the-mats",
+                author: "icellusedkars",
+                body: "The Maine Coon is a large domesticated cat breed.The Maine Coon is predominantly known for its size and dense coat of fur which helps it survive in the harsh climate of Maine. The Maine Coon is often cited as having dog-like characteristics"
+            };
+            return request(app)
+            .post('/api/articles')
+            .send(newArticle)
+            .expect(404)
+            .then(({body})=>{
+                expect(body.msg).toBe("Topic does not exist");
+            })
+        })
+        test('POST:400 sends an appropriate status and error message when missing required properties', ()=>{
+            const newArticle = {
+                title: "The Maine Coon",
+                topic: "cats",
+                body: "The Maine Coon is a large domesticated cat breed.The Maine Coon is predominantly known for its size and dense coat of fur which helps it survive in the harsh climate of Maine. The Maine Coon is often cited as having dog-like characteristics"
+            };
+            return request(app)
+            .post('/api/articles')
+            .send(newArticle)
+            .expect(400)
+            .then(({body})=>{
+                expect(body.msg).toBe('Bad request: missing some properties')
+            })
+        })
+        
+    })
 })

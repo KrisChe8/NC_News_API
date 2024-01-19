@@ -1,7 +1,8 @@
 const {
     fetchArticleById,
     fetchAllArticles,
-    updateArticleVotes
+    updateArticleVotes,
+    insertNewArticle
 } = require("../models/articles.models")
 
 const {
@@ -67,4 +68,25 @@ exports.patchArticleVotes = (req, res, next) =>{
         next(err)
     })
 
+}
+
+exports.postNewArticle = (req, res, next) =>{
+    const {title, topic, author, body, article_img_url} = req.body;
+
+    const topicExistenceQuery = checkTopicExist(topic);
+    const authorExistenceQuery = checkAuthorExist(author);
+    const insertArticleQuery = insertNewArticle(title, topic, author, body, article_img_url);
+    const queries = [insertArticleQuery, authorExistenceQuery, topicExistenceQuery];
+
+    Promise.all(queries)
+    .then((response)=>{
+        const article = response[0];
+        article.comment_count = 0;
+        res.status(201).send({article});
+    })
+    .catch((err)=>{
+        next(err);
+    })
+
+    
 }

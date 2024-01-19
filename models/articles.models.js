@@ -64,3 +64,18 @@ module.exports.updateArticleVotes = (id, votesIncr)=>{
         return result.rows[0];
     })
 }
+
+exports.insertNewArticle = (title, topic, author, body, article_img_url="https://images.pexels.com/photos/97050/pexels-photo-97050.jpeg?w=700&h=700")=>{
+    if(!title || !topic || !author || !body){
+        return Promise.reject(({status: 400, msg: 'Bad request: missing some properties'}))
+    }
+    return db.query(`
+    INSERT INTO articles (title, topic, author, body, votes, article_img_url) 
+     VALUES ($1, $2, $3, $4, $5, $6)
+    RETURNING *;`,
+    [title, topic, author, body, 0, article_img_url]
+    ).then((result)=>{
+        return result.rows[0];
+    })
+
+}
