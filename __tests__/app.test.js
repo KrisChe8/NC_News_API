@@ -402,12 +402,12 @@ describe('api', ()=>{
                 })
             })
         })
-        test("should return statuscode 200 and  an array of ALL article objects if query is omitted", ()=>{
+        test("should return statuscode 200 and  an array of ALL article objects if query is omitted (cause of pagination limit will be max 10", ()=>{
             return request(app).get("/api/articles")
             .expect(200)
             .then(({body})=>{
                 const {articles} = body;
-                expect(articles).toHaveLength(13);
+                expect(articles).toHaveLength(10);
             })
         })
         test('GET:404 sends an appropriate status and error message when given a valid but NON-existent TOPIC', ()=>{
@@ -417,12 +417,11 @@ describe('api', ()=>{
                 expect(body.msg).toBe("Topic does not exist");
             })
         })
-        test('GET:200 sends an appropriate status and empry array when given a valid TOPIC, but article does not exist', ()=>{
+        test('GET: 404 sends an appropriate status and error message when given a valid TOPIC, but article does not exist', ()=>{
             return request(app).get('/api/articles?topic=paper')
-            .expect(200)
+            .expect(404)
             .then(({body})=>{
-                const {articles} = body;
-                expect(articles).toEqual([]);
+                expect(body.msg).toBe("There is no more article yet");
             })
         })
     })
@@ -603,5 +602,58 @@ describe('api', ()=>{
             })
         })
         
+    })
+    describe("GET /api/articles PAGINATION", ()=>{
+        test("GET: 200 and returns articles paginated according to the limit and  page values", ()=>{
+            return request(app).get("/api/articles?sort_by=article_id&order=asc&limit=5&p=1")
+            .expect(200)
+            .then(({body})=>{
+                const {articles} = body;
+                expect(articles.length).toBe(5)
+                articles.forEach((article)=>{
+                    expect([1,2,3,4,5].includes(article.article_id)).toBe(true)
+                })
+            })
+        })
+        test("GET: 200 and returns articles paginated according to the limit and  page values FOR PAGE 2", ()=>{
+            return request(app).get("/api/articles?sort_by=article_id&order=asc&limit=5&p=2")
+            .expect(200)
+            .then(({body})=>{
+                const {articles} = body;
+                expect(articles.length).toBe(5)
+                articles.forEach((article)=>{
+                    expect([6,7,8,9,10].includes(article.article_id)).toBe(true)
+                })
+            })
+        })
+        test("GET: 200 and returns articles paginated according to the limit and  page values AND TOTAL_COUNT value", ()=>{
+            return request(app).get("/api/articles?sort_by=article_id&order=asc&limit=5&p=2")
+            .expect(200)
+            .then(({body})=>{
+                const {articles} = body;
+                expect(articles.length).toBe(5)
+                articles.forEach((article)=>{
+                    expect(article.hasOwnProperty("total_count")).toBe(true)
+                })
+            })
+        })
+        test("GET: 200 and returns 10 articles when pagination limit is not passed BUT there is a page value ", ()=>{
+            return request(app).get("/api/articles?sort_by=article_id&order=asc&p=1")
+            .expect(200)
+            .then(({body})=>{
+                const {articles} = body;
+                expect(articles.length).toBe(10)
+                articles.forEach((article)=>{
+                    expect([1,2,3,4,5, 6, 7, 8, 9, 10].includes(article.article_id)).toBe(true)
+                })
+            })
+        })
+        test('GET:404 sends an appropriate status and error message when given a valid but NON-existent PAGE', ()=>{
+            return request(app).get('/api/articles?sort_by=article_id&order=asc&p=4')
+            .expect(404)
+            .then(({body})=>{
+                expect(body.msg).toBe("There is no more article yet");
+            })
+        })
     })
 })
