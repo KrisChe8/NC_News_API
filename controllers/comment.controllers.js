@@ -1,7 +1,8 @@
 const {
     fetchCommentsByArticleId,
     insertComment,
-    removeCommentById
+    removeCommentById,
+    updateCommentVotesById
 } = require("../models/comment.models");
 const {
     checkArticleExists,
@@ -56,6 +57,24 @@ exports.deleteCommentById = (req, res, next)=>{
         res.status(204).send()
     })
     .catch((err)=>{
+        next(err)
+    })
+}
+
+exports.patchCommentsVotes = (req, res, next)=>{
+    const {comment_id} = req.params;
+    const {inc_votes} = req.body;
+    
+    const commentExistenceQuery = checkCommentExist(comment_id);
+    const updateCommentVotesQuery = updateCommentVotesById(comment_id, inc_votes);
+    const queries = [updateCommentVotesQuery, commentExistenceQuery]
+    Promise.all(queries)
+    .then((response)=>{
+        const comment = response[0];
+        res.status(200).send({comment})
+    })
+    .catch((err)=>{
+        console.log(err)
         next(err)
     })
 }
