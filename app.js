@@ -1,5 +1,6 @@
 const express = require("express");
 const apiRouter = require('./routers/api');
+const cors = require('cors');
 
 const {
     psqlErrorHandler,
@@ -9,6 +10,7 @@ const {
 
 
 const app = express();
+app.use(cors());
 app.use(express.json());
 
 app.use('/api', apiRouter);
